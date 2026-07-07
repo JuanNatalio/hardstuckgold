@@ -46,7 +46,11 @@ export default tseslint.config(
     ignores: ['src/**/*.d.ts', 'src/renderer/src/hooks/**'],
     plugins: { 'check-file': eslintPluginCheckFile },
     rules: {
-      'check-file/filename-naming-convention': ['error', { '**/*.ts': 'KEBAB_CASE' }]
+      'check-file/filename-naming-convention': [
+        'error',
+        { '**/*.ts': 'KEBAB_CASE' },
+        { ignoreMiddleExtensions: true }
+      ]
     }
   },
   eslintConfigPrettier
