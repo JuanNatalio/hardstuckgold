@@ -2,7 +2,7 @@
 
 A personal League of Legends companion app. Runs locally, auto-detects when League of Legends is running, and shows live champ-select/in-game/post-game data tailored to you — including your own history with summoners you've played with or against before.
 
-Full design and build sequence: see [`docs/spec.md`](docs/spec.md) (added in a follow-up PR) and `CONTRIBUTING.md`.
+Full design and build sequence: see [`docs/spec.md`](docs/spec.md). Workflow and code conventions: see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Requirements
 
