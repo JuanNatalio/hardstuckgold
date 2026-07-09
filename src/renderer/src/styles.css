@@ -11,4 +11,67 @@ body {
 
 .app {
   padding: 2rem;
+  max-width: 640px;
+}
+
+.settings section {
+  margin-bottom: 1.5rem;
+}
+
+.settings h3 {
+  margin-bottom: 0.25rem;
+}
+
+.settings .hint {
+  color: #9aa4b2;
+  font-size: 0.85rem;
+  margin-top: 0;
+}
+
+.settings label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.settings .row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settings input,
+.settings select {
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.6rem;
+  background: #131a22;
+  color: #e6e6e6;
+  border: 1px solid #2a3542;
+  border-radius: 4px;
+  min-width: 280px;
+}
+
+.settings button {
+  padding: 0.4rem 0.9rem;
+  background: #1d2a3a;
+  color: #e6e6e6;
+  border: 1px solid #34455c;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.settings button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.settings button:hover:not(:disabled) {
+  background: #24354a;
+}
+
+.settings .error {
+  color: #ff7a7a;
+}
+
+a {
+  color: #6ab0f3;
 }
