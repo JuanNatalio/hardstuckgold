@@ -1,11 +1,15 @@
 // Single source of truth for IPC channel names/payload types shared between main and renderer.
 import type { AppConfig, ConfigSummary } from './config-types'
+import type { AppPhase } from './phase-types'
 
 export const IpcChannels = {
   configGet: 'config:get',
   configSet: 'config:set',
   configSetApiKey: 'config:set-api-key',
-  configClearApiKey: 'config:clear-api-key'
+  configClearApiKey: 'config:clear-api-key',
+  phaseGet: 'phase:get',
+  /** main -> renderer push (webContents.send), payload: AppPhase */
+  phaseChanged: 'phase:changed'
 } as const
 
 /**
@@ -19,5 +23,10 @@ export interface RendererApi {
     set(partial: Partial<AppConfig>): Promise<ConfigSummary>
     setApiKey(key: string): Promise<ConfigSummary>
     clearApiKey(): Promise<ConfigSummary>
+  }
+  phase: {
+    get(): Promise<AppPhase>
+    /** Subscribes to phase changes; returns an unsubscribe function. */
+    onChanged(listener: (phase: AppPhase) => void): () => void
   }
 }

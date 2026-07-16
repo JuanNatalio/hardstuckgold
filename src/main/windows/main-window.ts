@@ -1,8 +1,13 @@
 import { join } from 'path'
-import { BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { is } from '@electron-toolkit/utils'
 
 let mainWindow: BrowserWindow | null = null
+let isQuitting = false
+
+app.on('before-quit', () => {
+  isQuitting = true
+})
 
 export function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
@@ -22,6 +27,14 @@ export function createMainWindow(): BrowserWindow {
     mainWindow?.show()
   })
 
+  // Closing hides to the tray; quitting is a deliberate action (tray menu).
+  mainWindow.on('close', (event) => {
+    if (!isQuitting) {
+      event.preventDefault()
+      mainWindow?.hide()
+    }
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -38,4 +51,15 @@ export function createMainWindow(): BrowserWindow {
 
 export function getMainWindow(): BrowserWindow | null {
   return mainWindow
+}
+
+/** Brings the window to the foreground, restoring/recreating it if needed. */
+export function showMainWindow(): void {
+  if (mainWindow === null || mainWindow.isDestroyed()) {
+    createMainWindow()
+    return
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
 }
