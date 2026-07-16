@@ -14,6 +14,31 @@ body {
   max-width: 640px;
 }
 
+.phase-banner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #2a3542;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+}
+
+.phase-banner h1 {
+  margin: 0;
+}
+
+.phase-label {
+  color: #9aa4b2;
+}
+
+.phase-banner[data-phase='ChampSelect'] .phase-label,
+.phase-banner[data-phase='InProgress'] .phase-label,
+.phase-banner[data-phase='EndOfGame'] .phase-label {
+  color: #c9a227;
+  font-weight: 600;
+}
+
 .settings section {
   margin-bottom: 1.5rem;
 }
