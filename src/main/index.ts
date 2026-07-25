@@ -3,6 +3,7 @@ import { app, BrowserWindow } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { ConfigStore } from './config/config-store'
 import { safeStorageCipher } from './config/safe-storage-cipher'
+import { AppDatabase } from './db/app-database'
 import { registerIpcHandlers } from './ipc/handlers'
 import { FsLockfileReader, LockfileWatcher } from './lockfile/lockfile-watcher'
 import { Orchestrator } from './orchestrator'
@@ -26,6 +27,11 @@ if (!app.requestSingleInstanceLock()) {
       join(app.getPath('userData'), 'config.json'),
       safeStorageCipher
     )
+
+    const dbPath = join(app.getPath('userData'), 'hardstuckgold.sqlite')
+    const database = new AppDatabase(dbPath)
+    console.log(`[db] ready at ${dbPath}`)
+    app.on('will-quit', () => database.close())
 
     const tray = new AppTray({
       onShowWindow: () => showMainWindow(),

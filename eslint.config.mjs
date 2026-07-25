@@ -43,7 +43,8 @@ export default tseslint.config(
       'src/shared/**/*.ts',
       'src/renderer/src/**/*.ts'
     ],
-    ignores: ['src/**/*.d.ts', 'src/renderer/src/hooks/**'],
+    // Migrations use an intentional numeric prefix (001-init) for apply ordering.
+    ignores: ['src/**/*.d.ts', 'src/renderer/src/hooks/**', 'src/main/db/migrations/**'],
     plugins: { 'check-file': eslintPluginCheckFile },
     rules: {
       'check-file/filename-naming-convention': [
