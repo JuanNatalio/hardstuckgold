@@ -26,6 +26,8 @@ export interface ParticipantBundle {
   puuid: string
   team: 'ally' | 'enemy'
   championId: number
+  /** gameName#tagLine, or null if the lookup failed. */
+  riotId: string | null
   ranks: RankSummary[]
   recentGamesCount: number
   mastery: MasterySummary | null

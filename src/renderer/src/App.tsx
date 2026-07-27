@@ -1,5 +1,9 @@
+import { useState } from 'react'
 import type { AppPhase } from '@shared/phase-types'
+import { demoBundle } from './champ-select/demo-data'
+import { useChampSelect } from './hooks/useChampSelect'
 import { useGamePhase } from './hooks/useGamePhase'
+import ChampSelectView from './views/ChampSelectView'
 import SettingsView from './views/SettingsView'
 
 const PHASE_LABELS: Record<AppPhase, string> = {
@@ -13,6 +17,10 @@ const PHASE_LABELS: Record<AppPhase, string> = {
 
 function App(): React.JSX.Element {
   const phase = useGamePhase()
+  const liveBundle = useChampSelect()
+  const [demo, setDemo] = useState(false)
+
+  const showChampSelect = demo || phase === 'ChampSelect'
 
   return (
     <div className="app">
@@ -20,8 +28,21 @@ function App(): React.JSX.Element {
         <h1>hardstuckgold</h1>
         <span className="phase-label">{PHASE_LABELS[phase]}</span>
       </header>
-      {/* Phase views (champ select / live game / post game) land in PRs 11-15. */}
-      <SettingsView />
+
+      {showChampSelect ? (
+        <ChampSelectView
+          bundle={demo ? demoBundle() : liveBundle}
+          demo={demo}
+          onExitDemo={() => setDemo(false)}
+        />
+      ) : (
+        <div className="home">
+          <button className="home__preview" onClick={() => setDemo(true)}>
+            Preview champ select
+          </button>
+          <SettingsView />
+        </div>
+      )}
     </div>
   )
 }

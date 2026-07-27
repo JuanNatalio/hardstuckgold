@@ -17,4 +17,6 @@ export function registerIpcHandlers(configStore: ConfigStore, orchestrator: Orch
   ipcMain.handle(IpcChannels.configClearApiKey, () => configStore.clearApiKey())
 
   ipcMain.handle(IpcChannels.phaseGet, () => orchestrator.getPhase())
+
+  ipcMain.handle(IpcChannels.champSelectGet, () => orchestrator.getChampSelectBundle())
 }

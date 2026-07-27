@@ -33,6 +33,7 @@ const participants: ChampSelectParticipant[] = [
 describe('enrichChampSelect', () => {
   it('assembles rank, recent games, mastery, and encounter per participant', async () => {
     const client = fakeClient((path) => {
+      if (path.includes('/account/v1/')) return { puuid: 'x', gameName: 'Faker', tagLine: 'KR1' }
       if (path.includes('/league/v4/'))
         return [
           {
@@ -64,6 +65,7 @@ describe('enrichChampSelect', () => {
 
     expect(bundle.participants).toHaveLength(2)
     const me = bundle.participants[0]
+    expect(me.riotId).toBe('Faker#KR1')
     expect(me.ranks[0].tier).toBe('GOLD')
     expect(me.recentGamesCount).toBe(3)
     expect(me.mastery?.points).toBe(99000)
@@ -76,9 +78,10 @@ describe('enrichChampSelect', () => {
 
   it('isolates a failing participant without affecting others', async () => {
     const client = fakeClient((path) => {
-      if (path.includes('/by-puuid/ME/') || path.includes('by-puuid/ME')) {
+      if (path.includes('by-puuid/ME')) {
         throw new RiotApiError('server error', 500)
       }
+      if (path.includes('/account/v1/')) return { puuid: 'ALLY', gameName: 'Ally', tagLine: 'NA1' }
       if (path.includes('/league/v4/')) return []
       if (path.includes('/match/v5/')) return ['NA1_1']
       if (path.includes('/champion-mastery/')) return null
@@ -106,6 +109,7 @@ describe('enrichChampSelect', () => {
         masteryPaths.push(path)
         return null
       }
+      if (path.includes('/account/v1/')) return { puuid: 'X', gameName: 'X', tagLine: 'NA1' }
       if (path.includes('/league/v4/')) return []
       if (path.includes('/match/v5/')) return []
       throw new Error(`unexpected ${path}`)
