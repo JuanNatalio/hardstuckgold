@@ -1,4 +1,5 @@
 import type { BrowserWindow } from 'electron'
+import type { ChampSelectBundle } from '../shared/champ-select-types'
 import { IpcChannels } from '../shared/ipc-contract'
 import type { AppPhase } from '../shared/phase-types'
 import { enrichChampSelect, type EncounterLookup } from './champ-select/enricher'
@@ -31,11 +32,16 @@ export class Orchestrator {
   private readonly machine = new PhaseMachine()
   private lcuClient: LcuClient | null = null
   private poller: PhasePoller | null = null
+  private champSelectBundle: ChampSelectBundle | null = null
 
   constructor(private readonly deps: OrchestratorDeps) {}
 
   getPhase(): AppPhase {
     return this.machine.getPhase()
+  }
+
+  getChampSelectBundle(): ChampSelectBundle | null {
+    return this.champSelectBundle
   }
 
   start(): void {
@@ -48,6 +54,10 @@ export class Orchestrator {
       }
       if (change.current === 'ChampSelect') {
         void this.runChampSelectPipeline()
+      } else if (change.previous === 'ChampSelect') {
+        // Left champ select: drop the stale bundle so the view resets.
+        this.champSelectBundle = null
+        this.pushChannel(IpcChannels.champSelectUpdated, null)
       }
     })
 
@@ -86,6 +96,8 @@ export class Orchestrator {
         `[champ-select] enriched ${bundle.participants.length} participants ` +
           `(${known} previously encountered)`
       )
+      this.champSelectBundle = bundle
+      this.pushChannel(IpcChannels.champSelectUpdated, bundle)
     } catch (error) {
       console.warn(`[champ-select] pipeline failed: ${(error as Error).message}`)
     }
@@ -99,9 +111,13 @@ export class Orchestrator {
   }
 
   private pushToRenderer(phase: AppPhase): void {
+    this.pushChannel(IpcChannels.phaseChanged, phase)
+  }
+
+  private pushChannel(channel: string, payload: unknown): void {
     const window: BrowserWindow | null = getMainWindow()
     if (window !== null && !window.isDestroyed()) {
-      window.webContents.send(IpcChannels.phaseChanged, phase)
+      window.webContents.send(channel, payload)
     }
   }
 }

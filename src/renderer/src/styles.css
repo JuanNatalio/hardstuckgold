@@ -1,43 +1,337 @@
 :root {
   color-scheme: dark;
+
+  /* The one bold value — swapped by the color picker in a later PR. */
+  --accent: #e63946;
+  --accent-soft: rgba(230, 57, 70, 0.12);
+  --accent-line: rgba(230, 57, 70, 0.6);
+
+  --bg: #0d0e12;
+  --surface: #16181f;
+  --surface-2: #1c1f28;
+  --border: #262a35;
+  --border-soft: #1e222b;
+
+  --text: #e8e9ec;
+  --text-dim: #8b909c;
+  --text-faint: #5a606d;
+
+  --sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: ui-monospace, 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New', monospace;
+
+  /* Rank tier dots — a second, meaningful color system kept muted. */
+  --tier-iron: #7c7c7c;
+  --tier-bronze: #a9764f;
+  --tier-silver: #9aa7b3;
+  --tier-gold: #d3af37;
+  --tier-platinum: #4aa89c;
+  --tier-emerald: #3fbf78;
+  --tier-diamond: #5b9be0;
+  --tier-master: #a35ad0;
+  --tier-grandmaster: #d24b5f;
+  --tier-challenger: #e6c06a;
+  --tier-unranked: #5a606d;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0b0f14;
-  color: #e6e6e6;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: var(--accent);
 }
 
 .app {
-  padding: 2rem;
-  max-width: 640px;
+  padding: 1.75rem 2rem 3rem;
 }
+
+/* ---- Phase banner ------------------------------------------------------ */
 
 .phase-banner {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid #2a3542;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.85rem;
 }
 
 .phase-banner h1 {
   margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .phase-label {
-  color: #9aa4b2;
+  color: var(--text-dim);
+  font-size: 0.85rem;
 }
 
 .phase-banner[data-phase='ChampSelect'] .phase-label,
 .phase-banner[data-phase='InProgress'] .phase-label,
 .phase-banner[data-phase='EndOfGame'] .phase-label {
-  color: #c9a227;
+  color: var(--accent);
   font-weight: 600;
 }
+
+/* ---- Home / settings --------------------------------------------------- */
+
+.home {
+  max-width: 620px;
+}
+
+.home__preview {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.home__preview:hover {
+  color: var(--text);
+  border-color: var(--accent-line);
+}
+
+/* ---- Champ select ------------------------------------------------------ */
+
+.cs {
+  max-width: 1000px;
+}
+
+.cs__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.cs__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.cs__eyebrow-sub {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.cs__demo-exit {
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.cs__demo-exit:hover {
+  color: var(--text);
+  border-color: var(--accent-line);
+}
+
+.cs--loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cs__loading-text {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.cs__teams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .cs__teams {
+    grid-template-columns: 1fr;
+  }
+}
+
+.team__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.team--enemy .team__label {
+  color: var(--text-faint);
+}
+
+.team__count {
+  color: var(--text-faint);
+  font-size: 0.72rem;
+}
+
+.team__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.team__hidden {
+  padding: 1.5rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+/* ---- Player card ------------------------------------------------------- */
+
+.player-card {
+  position: relative;
+  padding: 0.8rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  animation: card-in 0.32s ease both;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.team__cards .player-card:nth-child(2) {
+  animation-delay: 0.04s;
+}
+.team__cards .player-card:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.team__cards .player-card:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.team__cards .player-card:nth-child(5) {
+  animation-delay: 0.16s;
+}
+
+/* Signature: encounter history earns the accent, nothing else does. */
+.player-card--seen {
+  border-left: 2px solid var(--accent);
+  padding-left: calc(0.95rem - 1px);
+}
+
+.player-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.player-card__name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-chip--none {
+  color: var(--text-faint);
+}
+
+.rank-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.player-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 0.55rem;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+.player-card__dim {
+  color: var(--text-faint);
+}
+
+.player-card__partial {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.player-card__intel {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.player-card__intel-tag {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 0.12rem 0.4rem;
+  border-radius: 4px;
+}
+
+.player-card__intel-line {
+  font-size: 0.76rem;
+  color: var(--text);
+}
+
+/* ---- Settings ---------------------------------------------------------- */
 
 .settings section {
   margin-bottom: 1.5rem;
@@ -48,7 +342,7 @@ body {
 }
 
 .settings .hint {
-  color: #9aa4b2;
+  color: var(--text-dim);
   font-size: 0.85rem;
   margin-top: 0;
 }
@@ -68,18 +362,18 @@ body {
   display: block;
   margin-top: 0.25rem;
   padding: 0.4rem 0.6rem;
-  background: #131a22;
-  color: #e6e6e6;
-  border: 1px solid #2a3542;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 4px;
   min-width: 280px;
 }
 
 .settings button {
   padding: 0.4rem 0.9rem;
-  background: #1d2a3a;
-  color: #e6e6e6;
-  border: 1px solid #34455c;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
 }
@@ -90,13 +384,22 @@ body {
 }
 
 .settings button:hover:not(:disabled) {
-  background: #24354a;
+  border-color: var(--accent-line);
 }
 
 .settings .error {
-  color: #ff7a7a;
+  color: var(--accent);
 }
 
-a {
-  color: #6ab0f3;
+/* ---- Accessibility ----------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-card {
+    animation: none;
+  }
 }

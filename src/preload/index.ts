@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { ChampSelectBundle } from '../shared/champ-select-types'
 import type { AppConfig } from '../shared/config-types'
 import { IpcChannels, type RendererApi } from '../shared/ipc-contract'
 import type { AppPhase } from '../shared/phase-types'
@@ -17,6 +18,15 @@ const api: RendererApi = {
       const wrapped = (_event: IpcRendererEvent, phase: AppPhase): void => listener(phase)
       ipcRenderer.on(IpcChannels.phaseChanged, wrapped)
       return () => ipcRenderer.removeListener(IpcChannels.phaseChanged, wrapped)
+    }
+  },
+  champSelect: {
+    get: () => ipcRenderer.invoke(IpcChannels.champSelectGet),
+    onUpdated: (listener: (bundle: ChampSelectBundle | null) => void) => {
+      const wrapped = (_event: IpcRendererEvent, bundle: ChampSelectBundle | null): void =>
+        listener(bundle)
+      ipcRenderer.on(IpcChannels.champSelectUpdated, wrapped)
+      return () => ipcRenderer.removeListener(IpcChannels.champSelectUpdated, wrapped)
     }
   }
 }

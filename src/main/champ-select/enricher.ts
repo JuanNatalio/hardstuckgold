@@ -6,6 +6,7 @@ import type {
 } from '../../shared/champ-select-types'
 import type { EncounterStats } from '../db/db-types'
 import { mapWithConcurrency } from '../concurrency'
+import { getAccountByPuuid } from '../riot-api/account'
 import { getRankedEntries, type LeagueEntryDto } from '../riot-api/league'
 import { getChampionMastery } from '../riot-api/mastery'
 import { getRecentMatchIds } from '../riot-api/match'
@@ -58,7 +59,8 @@ async function enrichOne(
   client: RiotClient,
   encounter: EncounterStats | undefined
 ): Promise<ParticipantBundle> {
-  const [ranksResult, idsResult, masteryResult] = await Promise.allSettled([
+  const [accountResult, ranksResult, idsResult, masteryResult] = await Promise.allSettled([
+    getAccountByPuuid(client, participant.puuid),
     getRankedEntries(client, participant.puuid),
     getRecentMatchIds(client, participant.puuid, RECENT_MATCH_COUNT),
     participant.championId > 0
@@ -66,12 +68,18 @@ async function enrichOne(
       : Promise.resolve(null)
   ])
 
-  const partial = [ranksResult, idsResult, masteryResult].some((r) => r.status === 'rejected')
+  const partial = [accountResult, ranksResult, idsResult, masteryResult].some(
+    (r) => r.status === 'rejected'
+  )
 
   return {
     puuid: participant.puuid,
     team: participant.team,
     championId: participant.championId,
+    riotId:
+      accountResult.status === 'fulfilled'
+        ? `${accountResult.value.gameName}#${accountResult.value.tagLine}`
+        : null,
     ranks: ranksResult.status === 'fulfilled' ? ranksResult.value.map(toRankSummary) : [],
     recentGamesCount: idsResult.status === 'fulfilled' ? idsResult.value.length : 0,
     mastery:

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { getAccountByPuuid } from './account'
 import { getRankedEntries } from './league'
 import { getChampionMastery } from './mastery'
 import { getMatchDetail, getRecentMatchIds } from './match'
@@ -41,6 +42,18 @@ describe('match endpoints', () => {
     })
     await getMatchDetail(client, 'NA1_1')
     expect(seen).toBe('regional /lol/match/v5/matches/NA1_1')
+  })
+})
+
+describe('account endpoint', () => {
+  it('requests account by puuid on regional routing', async () => {
+    let seen = ''
+    const client = fakeClient((routing, path) => {
+      seen = `${routing} ${path}`
+      return { puuid: 'PU', gameName: 'N', tagLine: 'NA1' }
+    })
+    await getAccountByPuuid(client, 'PU')
+    expect(seen).toBe('regional /riot/account/v1/accounts/by-puuid/PU')
   })
 })
 
