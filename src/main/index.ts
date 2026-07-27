@@ -7,8 +7,16 @@ import { AppDatabase } from './db/app-database'
 import { registerIpcHandlers } from './ipc/handlers'
 import { FsLockfileReader, LockfileWatcher } from './lockfile/lockfile-watcher'
 import { Orchestrator } from './orchestrator'
+import { RateLimiter } from './riot-api/rate-limiter'
+import { RiotClient } from './riot-api/riot-client'
 import { createMainWindow, showMainWindow } from './windows/main-window'
 import { AppTray } from './windows/tray'
+
+// Riot personal dev-key limits: 20 requests/s and 100 requests/2 min.
+const RIOT_RATE_WINDOWS = [
+  { count: 20, intervalMs: 1000 },
+  { count: 100, intervalMs: 120_000 }
+]
 
 // A second launch (autostart + manual start) must not spawn duplicate pollers.
 if (!app.requestSingleInstanceLock()) {
@@ -38,11 +46,24 @@ if (!app.requestSingleInstanceLock()) {
       onQuit: () => app.quit()
     })
 
+    // One rate limiter shared across all Riot requests; key + region read
+    // lazily so config edits take effect without a restart.
+    const riotClient = new RiotClient({
+      getApiKey: () => configStore.getApiKey(),
+      getRegion: () => configStore.getSummary().region,
+      rateLimiter: new RateLimiter(RIOT_RATE_WINDOWS)
+    })
+
     // Reads the path lazily so config changes take effect on the next poll.
     const lockfileWatcher = new LockfileWatcher(
       new FsLockfileReader(() => configStore.getSummary().leaguePath)
     )
-    const orchestrator = new Orchestrator(lockfileWatcher, tray)
+    const orchestrator = new Orchestrator({
+      lockfileWatcher,
+      tray,
+      riotClient,
+      encounters: database.encounters
+    })
 
     registerIpcHandlers(configStore, orchestrator)
     orchestrator.start()
