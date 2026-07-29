@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type { ChampSelectBundle } from '../shared/champ-select-types'
 import type { AppConfig } from '../shared/config-types'
+import type { LiveGameSnapshot } from '../shared/live-game-types'
 import { IpcChannels, type RendererApi } from '../shared/ipc-contract'
 import type { AppPhase } from '../shared/phase-types'
 
@@ -27,6 +28,15 @@ const api: RendererApi = {
         listener(bundle)
       ipcRenderer.on(IpcChannels.champSelectUpdated, wrapped)
       return () => ipcRenderer.removeListener(IpcChannels.champSelectUpdated, wrapped)
+    }
+  },
+  liveGame: {
+    get: () => ipcRenderer.invoke(IpcChannels.liveGameGet),
+    onUpdated: (listener: (snapshot: LiveGameSnapshot | null) => void) => {
+      const wrapped = (_event: IpcRendererEvent, snapshot: LiveGameSnapshot | null): void =>
+        listener(snapshot)
+      ipcRenderer.on(IpcChannels.liveGameUpdated, wrapped)
+      return () => ipcRenderer.removeListener(IpcChannels.liveGameUpdated, wrapped)
     }
   }
 }

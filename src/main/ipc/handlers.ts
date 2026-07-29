@@ -19,4 +19,6 @@ export function registerIpcHandlers(configStore: ConfigStore, orchestrator: Orch
   ipcMain.handle(IpcChannels.phaseGet, () => orchestrator.getPhase())
 
   ipcMain.handle(IpcChannels.champSelectGet, () => orchestrator.getChampSelectBundle())
+
+  ipcMain.handle(IpcChannels.liveGameGet, () => orchestrator.getLiveGameSnapshot())
 }

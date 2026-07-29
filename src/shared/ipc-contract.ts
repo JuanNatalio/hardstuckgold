@@ -1,6 +1,7 @@
 // Single source of truth for IPC channel names/payload types shared between main and renderer.
 import type { AppConfig, ConfigSummary } from './config-types'
 import type { ChampSelectBundle } from './champ-select-types'
+import type { LiveGameSnapshot } from './live-game-types'
 import type { AppPhase } from './phase-types'
 
 export const IpcChannels = {
@@ -13,7 +14,10 @@ export const IpcChannels = {
   phaseChanged: 'phase:changed',
   champSelectGet: 'champ-select:get',
   /** main -> renderer push, payload: ChampSelectBundle | null */
-  champSelectUpdated: 'champ-select:updated'
+  champSelectUpdated: 'champ-select:updated',
+  liveGameGet: 'live-game:get',
+  /** main -> renderer push, payload: LiveGameSnapshot | null */
+  liveGameUpdated: 'live-game:updated'
 } as const
 
 /**
@@ -37,5 +41,10 @@ export interface RendererApi {
     get(): Promise<ChampSelectBundle | null>
     /** Subscribes to champ-select bundle updates; returns an unsubscribe function. */
     onUpdated(listener: (bundle: ChampSelectBundle | null) => void): () => void
+  }
+  liveGame: {
+    get(): Promise<LiveGameSnapshot | null>
+    /** Subscribes to live-game snapshot updates; returns an unsubscribe function. */
+    onUpdated(listener: (snapshot: LiveGameSnapshot | null) => void): () => void
   }
 }

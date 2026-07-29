@@ -1,10 +1,13 @@
 import type { BrowserWindow } from 'electron'
 import type { ChampSelectBundle } from '../shared/champ-select-types'
 import { IpcChannels } from '../shared/ipc-contract'
+import type { LiveGameSnapshot } from '../shared/live-game-types'
 import type { AppPhase } from '../shared/phase-types'
 import { enrichChampSelect, type EncounterLookup } from './champ-select/enricher'
 import { readChampSelectParticipants } from './lcu/champ-select'
 import { LcuClient } from './lcu/lcu-client'
+import { LiveClientDataClient } from './live-client/live-client-client'
+import { LiveGamePoller } from './live-client/live-game-poller'
 import type { LockfileWatcher } from './lockfile/lockfile-watcher'
 import { PhaseMachine } from './phase/phase-machine'
 import { PhasePoller } from './phase/phase-poller'
@@ -33,6 +36,9 @@ export class Orchestrator {
   private lcuClient: LcuClient | null = null
   private poller: PhasePoller | null = null
   private champSelectBundle: ChampSelectBundle | null = null
+  private liveClient: LiveClientDataClient | null = null
+  private liveGamePoller: LiveGamePoller | null = null
+  private liveGameSnapshot: LiveGameSnapshot | null = null
 
   constructor(private readonly deps: OrchestratorDeps) {}
 
@@ -42,6 +48,10 @@ export class Orchestrator {
 
   getChampSelectBundle(): ChampSelectBundle | null {
     return this.champSelectBundle
+  }
+
+  getLiveGameSnapshot(): LiveGameSnapshot | null {
+    return this.liveGameSnapshot
   }
 
   start(): void {
@@ -58,6 +68,14 @@ export class Orchestrator {
         // Left champ select: drop the stale bundle so the view resets.
         this.champSelectBundle = null
         this.pushChannel(IpcChannels.champSelectUpdated, null)
+      }
+
+      if (change.current === 'InProgress') {
+        this.startLiveGamePolling()
+      } else if (change.previous === 'InProgress') {
+        // Game ended: stop polling and clear the snapshot so the view resets.
+        this.teardownLiveGame()
+        this.pushChannel(IpcChannels.liveGameUpdated, null)
       }
     })
 
@@ -81,6 +99,7 @@ export class Orchestrator {
   stop(): void {
     this.deps.lockfileWatcher.stop()
     this.teardownLcu()
+    this.teardownLiveGame()
   }
 
   private async runChampSelectPipeline(): Promise<void> {
@@ -101,6 +120,24 @@ export class Orchestrator {
     } catch (error) {
       console.warn(`[champ-select] pipeline failed: ${(error as Error).message}`)
     }
+  }
+
+  private startLiveGamePolling(): void {
+    this.teardownLiveGame()
+    this.liveClient = new LiveClientDataClient()
+    this.liveGamePoller = new LiveGamePoller(this.liveClient, (snapshot) => {
+      this.liveGameSnapshot = snapshot
+      this.pushChannel(IpcChannels.liveGameUpdated, snapshot)
+    })
+    this.liveGamePoller.start()
+  }
+
+  private teardownLiveGame(): void {
+    this.liveGamePoller?.stop()
+    this.liveGamePoller = null
+    this.liveClient?.dispose()
+    this.liveClient = null
+    this.liveGameSnapshot = null
   }
 
   private teardownLcu(): void {
