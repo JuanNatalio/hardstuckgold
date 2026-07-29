@@ -3,7 +3,10 @@ import type { AppPhase } from '@shared/phase-types'
 import { demoBundle } from './champ-select/demo-data'
 import { useChampSelect } from './hooks/useChampSelect'
 import { useGamePhase } from './hooks/useGamePhase'
+import { useLiveGame } from './hooks/useLiveGame'
+import { demoSnapshot } from './live-game/demo-data'
 import ChampSelectView from './views/ChampSelectView'
+import LiveGameView from './views/LiveGameView'
 import SettingsView from './views/SettingsView'
 
 const PHASE_LABELS: Record<AppPhase, string> = {
@@ -15,12 +18,16 @@ const PHASE_LABELS: Record<AppPhase, string> = {
   EndOfGame: 'Post game'
 }
 
+type DemoView = 'champ' | 'live' | null
+
 function App(): React.JSX.Element {
   const phase = useGamePhase()
-  const liveBundle = useChampSelect()
-  const [demo, setDemo] = useState(false)
+  const champSelectBundle = useChampSelect()
+  const liveSnapshot = useLiveGame()
+  const [demo, setDemo] = useState<DemoView>(null)
 
-  const showChampSelect = demo || phase === 'ChampSelect'
+  const showChampSelect = demo === 'champ' || (demo === null && phase === 'ChampSelect')
+  const showLiveGame = demo === 'live' || (demo === null && phase === 'InProgress')
 
   return (
     <div className="app">
@@ -31,15 +38,26 @@ function App(): React.JSX.Element {
 
       {showChampSelect ? (
         <ChampSelectView
-          bundle={demo ? demoBundle() : liveBundle}
-          demo={demo}
-          onExitDemo={() => setDemo(false)}
+          bundle={demo === 'champ' ? demoBundle() : champSelectBundle}
+          demo={demo === 'champ'}
+          onExitDemo={() => setDemo(null)}
+        />
+      ) : showLiveGame ? (
+        <LiveGameView
+          snapshot={demo === 'live' ? demoSnapshot() : liveSnapshot}
+          demo={demo === 'live'}
+          onExitDemo={() => setDemo(null)}
         />
       ) : (
         <div className="home">
-          <button className="home__preview" onClick={() => setDemo(true)}>
-            Preview champ select
-          </button>
+          <div className="home__previews">
+            <button className="home__preview" onClick={() => setDemo('champ')}>
+              Preview champ select
+            </button>
+            <button className="home__preview" onClick={() => setDemo('live')}>
+              Preview live game
+            </button>
+          </div>
           <SettingsView />
         </div>
       )}

@@ -31,6 +31,11 @@
   --tier-grandmaster: #d24b5f;
   --tier-challenger: #e6c06a;
   --tier-unranked: #5a606d;
+
+  /* Live-game team sides — muted, kept clear of the red accent signature. */
+  --team-order: #5b9be0;
+  --team-chaos: #d16b74;
+  --gold: #d3af37;
 }
 
 * {
@@ -96,8 +101,14 @@ a {
   max-width: 620px;
 }
 
-.home__preview {
+.home__previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
   margin-bottom: 1.5rem;
+}
+
+.home__preview {
   padding: 0.5rem 0.9rem;
   background: transparent;
   color: var(--text-dim);
@@ -331,6 +342,288 @@ a {
   color: var(--text);
 }
 
+/* ---- Live game (scoreboard) -------------------------------------------- */
+
+.lg {
+  max-width: 920px;
+}
+
+.lg--loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lg__loading-text {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.lg__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.lg__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lg__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.lg__live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+}
+
+.lg__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.lg__eyebrow-sub {
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.lg__stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lg__clock {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg__gold {
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg__demo-exit {
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+.lg__demo-exit:hover {
+  color: var(--text);
+  border-color: var(--accent-line);
+}
+
+.sb {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sb-team__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 0.55rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sb-team__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.sb-team--order .sb-team__dot {
+  background: var(--team-order);
+}
+
+.sb-team--chaos .sb-team__dot {
+  background: var(--team-chaos);
+}
+
+.sb-team__kills {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+/* Column grid shared by the header labels and every row. */
+.sb-team__cols,
+.sb-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 118px 82px 128px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sb-team__cols {
+  padding: 0 0.8rem 0.4rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.sb-team__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sb-row {
+  padding: 0.5rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  animation: card-in 0.3s ease both;
+}
+
+/* "You" reads as a quiet tint, not a spotlight — the red accent stays reserved. */
+.sb-row--you {
+  background: var(--surface-2);
+}
+
+.sb-row--dead {
+  opacity: 0.5;
+}
+
+.sb-row__champ {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.sb-row__level {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.sb-row--you .sb-row__level {
+  background: var(--bg);
+}
+
+.sb-row__name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb-row__you {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.sb-row__respawn {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--team-chaos);
+}
+
+.sb-row__kda,
+.sb-row__cs {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.sb-row__kda-line {
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.sb-row__kda-ratio,
+.sb-row__cs-rate {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}
+
+.sb-row__cs {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.sb-row__items {
+  display: flex;
+  gap: 3px;
+}
+
+.sb-item {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.sb-item--empty {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.5;
+}
+
 /* ---- Settings ---------------------------------------------------------- */
 
 .settings section {
@@ -399,7 +692,9 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .player-card {
+  .player-card,
+  .sb-row,
+  .lg__live-dot {
     animation: none;
   }
 }
